@@ -3,7 +3,9 @@
 extern crate rocket;
 
 use memez::add_account;
+use memez::add_memecoin;
 use memez::api_models::APIAccounts;
+use memez::api_models::APIMemecoins;
 use memez::establish_connection;
 use memez::get_account_with_wallet_address;
 use memez::get_memecoin_threads;
@@ -93,26 +95,31 @@ fn add_acc(new_acc_info: Form<APIAccounts>) -> Json<Result<AccountsResp, String>
     }
 }
 
-#[post("/update-user-credits", data = "<new_credits>")]
-fn update_user_conditionals(
-    new_credits: Form<UpdatedUserCreditsIN>,
-) -> Json<Result<QUsers, String>> {
+#[post("/add-memecoin", data = "<new_memecoin_info>")]
+fn add_memcoin(new_memecoin_info: Form<APIMemecoins>) -> Json<Result<Memecoins, String>> {
     let mut conn = establish_connection();
-    match update_user_credits(
-        &mut conn,
-        &new_credits.username_out.clone(),
-        &Users {
-            username: new_credits.username_in.clone(),
-            email: new_credits.email_in.clone(),
-            password: new_credits.password_in.clone(),
-            phone_number: new_credits.phone_number_in.clone(),
-        },
-    ) {
+    match add_memecoin(&mut conn, APIMemecoins::to_db_model(new_memecoin_info.0)) {
         Ok(res) => return Json(Ok(res)),
         Err(e) => return Json(Err(format!("{:?}", e))),
     }
 }
 
+#[post("/add-account", data = "<new_acc_info>")]
+fn add_acc(new_acc_info: Form<APIAccounts>) -> Json<Result<AccountsResp, String>> {
+    let mut conn = establish_connection();
+    match add_account(&mut conn, APIAccounts::to_db_model(new_acc_info.0)) {
+        Ok(res) => return Json(Ok(res)),
+        Err(e) => return Json(Err(format!("{:?}", e))),
+    }
+}
+#[post("/add-account", data = "<new_acc_info>")]
+fn add_acc(new_acc_info: Form<APIAccounts>) -> Json<Result<AccountsResp, String>> {
+    let mut conn = establish_connection();
+    match add_account(&mut conn, APIAccounts::to_db_model(new_acc_info.0)) {
+        Ok(res) => return Json(Ok(res)),
+        Err(e) => return Json(Err(format!("{:?}", e))),
+    }
+}
 #[post("/update-user-profile", data = "<new_profile>")]
 fn update_user_profile_api(
     new_profile: Form<UpdatedUserProfileIN>,
