@@ -21,12 +21,12 @@ diesel::table! {
         name -> Varchar,
         #[max_length = 20]
         symbol -> Varchar,
-        cap -> Numeric,
+        cap -> Int4,
         #[max_length = 255]
         icon -> Nullable<Varchar>,
         description -> Nullable<Text>,
         links -> Nullable<Jsonb>,
-        market_cap -> Nullable<Numeric>,
+        market_cap -> Nullable<Int4>,
         created_at -> Nullable<Timestamptz>,
     }
 }
@@ -36,7 +36,7 @@ diesel::table! {
         id -> Int4,
         #[max_length = 50]
         memecoin -> Varchar,
-        timestamp -> Timestamptz,
+        timestamp -> Nullable<Timestamptz>,
         author -> Int4,
         text -> Text,
         #[max_length = 255]
@@ -52,12 +52,14 @@ diesel::table! {
         memecoin -> Varchar,
         timestamp -> Timestamptz,
         #[max_length = 42]
-        initiator -> Nullable<Varchar>,
+        initiator -> Varchar,
         #[sql_name = "type"]
         #[max_length = 4]
-        type_ -> Nullable<Varchar>,
-        amount_eth -> Numeric,
-        amount_token -> Numeric,
+        type_ -> Varchar,
+        #[max_length = 46]
+        amount_eth -> Varchar,
+        #[max_length = 46]
+        amount_token -> Varchar,
     }
 }
 
