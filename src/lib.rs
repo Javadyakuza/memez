@@ -12,7 +12,7 @@ pub use diesel::prelude::*;
 pub use diesel::result::Error;
 pub use dotenvy::dotenv;
 use helpers::{get_account_with_wallet_address, get_memecoin_with_address};
-use models::AccountsResp;
+use models::{AccountsResp, ThreadsResp};
 use schema::{accounts::dsl::*, memecoins::dsl::*, threads::dsl::*, trades::dsl::*};
 
 pub use std::env;
@@ -33,25 +33,18 @@ pub fn add_account(
     account_info: Accounts,
 ) -> Result<AccountsResp, Box<dyn std::error::Error>> {
     // adding the account
-    if let Err(e) = diesel::insert_into(accounts::table)
+    match diesel::insert_into(accounts::table)
         .values(&account_info)
         .returning(AccountsResp::as_returning())
         .get_result(conn)
     {
-        return Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!("{:?}", e),
-        )));
-    }
-
-    match get_account_with_wallet_address(conn, &account_info.wallet_address) {
-        Ok(res) => return Ok(res),
         Err(e) => {
             return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
+                std::io::ErrorKind::Other,
                 format!("{:?}", e),
-            )))
+            )));
         }
+        Ok(res) => return Ok(res),
     }
 }
 
@@ -59,79 +52,58 @@ pub fn add_memecoin(
     conn: &mut PgConnection,
     memecoin_info: Memecoins,
 ) -> Result<Memecoins, Box<dyn std::error::Error>> {
-    // adding the account
-    if let Err(e) = diesel::insert_into(memecoins::table)
+    // adding the memecoin
+    match diesel::insert_into(memecoins::table)
         .values(&memecoin_info)
         .returning(Memecoins::as_returning())
         .get_result(conn)
     {
-        return Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!("{:?}", e),
-        )));
-    }
-
-    match get_memecoin_with_address(conn, &memecoin_info.contract_address) {
-        Ok(res) => return Ok(res),
         Err(e) => {
             return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
+                std::io::ErrorKind::Other,
                 format!("{:?}", e),
-            )))
+            )));
         }
+        Ok(res) => return Ok(res),
     }
 }
 
-pub fn add_(
+pub fn add_thread(
+    conn: &mut PgConnection,
+    thread_info: Threads,
+) -> Result<ThreadsResp, Box<dyn std::error::Error>> {
+    // adding the thread
+    match diesel::insert_into(threads::table)
+        .values(&thread_info)
+        .returning(ThreadsResp::as_returning())
+        .get_result(conn)
+    {
+        Err(e) => {
+            return Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("{:?}", e),
+            )));
+        }
+        Ok(res) => return Ok(res),
+    }
+}
+
+pub fn add_trades(
     conn: &mut PgConnection,
     account_info: Accounts,
 ) -> Result<AccountsResp, Box<dyn std::error::Error>> {
-    // adding the account
-    if let Err(e) = diesel::insert_into(accounts::table)
+    // adding the trade
+    match diesel::insert_into(accounts::table)
         .values(&account_info)
         .returning(AccountsResp::as_returning())
         .get_result(conn)
     {
-        return Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!("{:?}", e),
-        )));
-    }
-
-    match get_account_with_wallet_address(conn, &account_info.wallet_address) {
-        Ok(res) => return Ok(res),
         Err(e) => {
             return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
+                std::io::ErrorKind::Other,
                 format!("{:?}", e),
-            )))
+            )));
         }
-    }
-}
-
-pub fn add_account(
-    conn: &mut PgConnection,
-    account_info: Accounts,
-) -> Result<AccountsResp, Box<dyn std::error::Error>> {
-    // adding the account
-    if let Err(e) = diesel::insert_into(accounts::table)
-        .values(&account_info)
-        .returning(AccountsResp::as_returning())
-        .get_result(conn)
-    {
-        return Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!("{:?}", e),
-        )));
-    }
-
-    match get_account_with_wallet_address(conn, &account_info.wallet_address) {
         Ok(res) => return Ok(res),
-        Err(e) => {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                format!("{:?}", e),
-            )))
-        }
     }
 }
