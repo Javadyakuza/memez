@@ -1,10 +1,9 @@
 #![recursion_limit = "256"]
+pub mod api_models;
 pub mod models;
 pub mod schema;
-
 use crate::models::{Accounts, Memecoins, Threads, Trades};
 use crate::schema::{accounts, memecoins, threads, trades};
-use chrono::Local;
 pub use diesel;
 pub use diesel::pg::PgConnection;
 pub use diesel::prelude::*;
