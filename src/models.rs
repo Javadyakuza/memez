@@ -8,10 +8,14 @@ use diesel::{
 };
 use rocket::request::FromForm;
 use serde::{self, Deserialize, Serialize};
-use std::fmt::Debug; // use merge_derivable;
+use std::fmt::Debug;
 
-pub trait FromApiModel<T: for<'a> FromForm<'a> + Debug + Serialize> {
-    fn from_api_model(model: T) -> Self;
+pub trait ToDBModel<
+    T: for<'a> FromForm<'a> + Debug + Serialize,
+    D: Serialize + for<'a> Deserialize<'a> + Debug,
+>
+{
+    fn to_db_model(model: T) -> D;
 }
 
 #[derive(Queryable, Deserialize, Serialize, Selectable, Debug, Insertable, PartialEq)]
@@ -89,55 +93,64 @@ pub struct AccountsResp {
     pub profile_picture: Option<String>,
 }
 
-impl FromApiModel<APIMemecoins> for Memecoins {
-    fn from_api_model(model: APIMemecoins) -> Self {
+impl ToDBModel<APIAccounts, Accounts> for APIAccounts {
+    fn to_db_model(model: APIAccounts) -> Accounts {
+        Accounts {
+            wallet_address: model.wallet_address,
+            nickname: model.nickname,
+            profile_picture: model.profile_picture,
+        }
+    }
+}
+impl ToDBModel<APIMemecoins, Memecoins> for APIMemecoins {
+    fn to_db_model(model: APIMemecoins) -> Memecoins {
         let parsed_links: serde_json::Value = serde_json::from_str(&model.links.unwrap()).unwrap();
         let parsed_crated_at =
             NaiveDateTime::parse_from_str(&model.created_at.unwrap(), "%Y-%m-%d %H:%M:%S").unwrap();
 
-        Self {
-            contract_address: model.contract_address.clone(),
-            creator_id: model.creator_id.clone(),
-            name: model.name.clone(),
-            symbol: model.symbol.clone(),
-            cap: model.cap.clone(),
-            icon: model.icon.clone(),
-            description: model.description.clone(),
+        Memecoins {
+            contract_address: model.contract_address,
+            creator_id: model.creator_id,
+            name: model.name,
+            symbol: model.symbol,
+            cap: model.cap,
+            icon: model.icon,
+            description: model.description,
             links: Some(parsed_links),
-            market_cap: model.market_cap.clone(),
+            market_cap: model.market_cap,
             created_at: Some(parsed_crated_at),
         }
     }
 }
 
-impl FromApiModel<APIThreads> for Threads {
-    fn from_api_model(model: APIThreads) -> Self {
+impl ToDBModel<APIThreads, Threads> for APIThreads {
+    fn to_db_model(model: APIThreads) -> Threads {
         let parsed_timestamp =
             NaiveDateTime::parse_from_str(&model.timestamp.unwrap(), "%Y-%m-%d %H:%M:%S").unwrap();
 
-        Self {
-            memecoin: model.memecoin.clone(),
+        Threads {
+            memecoin: model.memecoin,
             timestamp: Some(parsed_timestamp),
-            author: model.author.clone(),
-            text: model.text.clone(),
-            image: model.image.clone(),
+            author: model.author,
+            text: model.text,
+            image: model.image,
         }
     }
 }
 
-impl FromApiModel<APITrades> for Trades {
-    fn from_api_model(model: APITrades) -> Self {
+impl ToDBModel<APITrades, Trades> for APITrades {
+    fn to_db_model(model: APITrades) -> Trades {
         let parsed_timestamp =
             NaiveDateTime::parse_from_str(&model.timestamp, "%Y-%m-%d %H:%M:%S").unwrap();
 
-        Self {
-            tx_hash: model.tx_hash.clone(),
-            memecoin: model.memecoin.clone(),
+        Trades {
+            tx_hash: model.tx_hash,
+            memecoin: model.memecoin,
             timestamp: parsed_timestamp,
-            initiator: model.initiator.clone(),
-            type_: model.type_.clone(),
-            amount_eth: model.amount_eth.clone(),
-            amount_token: model.amount_token.clone(),
+            initiator: model.initiator,
+            type_: model.type_,
+            amount_eth: model.amount_eth,
+            amount_token: model.amount_token,
         }
     }
 }
