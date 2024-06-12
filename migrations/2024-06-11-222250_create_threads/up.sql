@@ -1,0 +1,10 @@
+CREATE TABLE Threads (
+    id SERIAL PRIMARY KEY,
+    memecoin VARCHAR(50) NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    author SERIAL,
+    text TEXT NOT NULL,
+    image VARCHAR(255) DEFAULT NULL,
+    FOREIGN KEY (memecoin) REFERENCES Memecoins(contract_address) ON DELETE CASCADE,
+    FOREIGN KEY (author) REFERENCES Accounts(id) ON DELETE CASCADE
+);

@@ -1,0 +1,10 @@
+CREATE TABLE Trades (
+    tx_hash VARCHAR(70) UNIQUE PRIMARY KEY,
+    memecoin VARCHAR(50) NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    initiator VARCHAR(42) DEFAULT NULL,
+    type VARCHAR(4) DEFAULT NULL,
+    amount_ETH DECIMAL(30, 18) NOT NULL,
+    amount_token DECIMAL(30, 18) NOT NULL,
+    FOREIGN KEY (memecoin) REFERENCES Memecoins(contract_address) ON DELETE CASCADE
+);
