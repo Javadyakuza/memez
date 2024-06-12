@@ -31,3 +31,34 @@ pub fn get_account_with_wallet_address(
         )))
     }
 }
+
+pub fn get_memecoin_with_address(
+    _conn: &mut PgConnection,
+    _contract_address: &str,
+) -> Result<Memecoins, Box<dyn std::error::Error>> {
+    let accounts_row: Vec<Memecoins> = memecoins
+        .filter(contract_address.eq(&_contract_address))
+        .select(Memecoins::as_select())
+        .load(_conn)
+        .unwrap_or(vec![]);
+
+    if accounts_row.len() == 1 {
+        Ok(Memecoins {
+            contract_address: accounts_row[0].contract_address.clone(),
+            creator_id: accounts_row[0].creator_id.clone(),
+            name: accounts_row[0].name.clone(),
+            symbol: accounts_row[0].symbol.clone(),
+            cap: accounts_row[0].cap.clone(),
+            icon: Some(accounts_row[0].icon.clone().unwrap_or_default()),
+            description: Some(accounts_row[0].description.clone().unwrap_or_default()),
+            links: Some(accounts_row[0].links.clone().unwrap_or_default()),
+            market_cap: Some(accounts_row[0].market_cap.unwrap_or_default()),
+            created_at: Some(accounts_row[0].created_at.unwrap_or_default()),
+        })
+    } else {
+        Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "token not found !",
+        )))
+    }
+}
