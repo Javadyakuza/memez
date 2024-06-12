@@ -87,12 +87,12 @@ pub fn add_thread(
 
 pub fn add_trades(
     conn: &mut PgConnection,
-    account_info: Accounts,
-) -> Result<AccountsResp, Box<dyn std::error::Error>> {
+    _trade_info: Trades,
+) -> Result<Trades, Box<dyn std::error::Error>> {
     // adding the trade
-    match diesel::insert_into(accounts::table)
-        .values(&account_info)
-        .returning(AccountsResp::as_returning())
+    match diesel::insert_into(trades::table)
+        .values(&_trade_info)
+        .returning(Trades::as_returning())
         .get_result(conn)
     {
         Err(e) => {

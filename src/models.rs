@@ -57,7 +57,7 @@ pub struct Threads {
     pub image: Option<String>,
 }
 
-#[derive(Queryable, Deserialize, Serialize, Selectable, Debug, PartialEq)]
+#[derive(Queryable, Deserialize, Serialize, Selectable, Debug, Insertable, PartialEq)]
 #[diesel(table_name = crate::schema::trades)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Trades {
