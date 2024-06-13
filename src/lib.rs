@@ -45,6 +45,35 @@ pub fn add_account(
     }
 }
 
+pub fn edit_account(
+    conn: &mut PgConnection,
+    account_info: AccountsResp,
+) -> Result<AccountsResp, Box<dyn std::error::Error>> {
+    // updating the account
+    match diesel::update(
+        accounts.filter(
+            accounts::id
+                .eq(account_info.id)
+                .and(accounts::wallet_address.eq(account_info.wallet_address)),
+        ),
+    )
+    .set((
+        nickname.eq(&account_info.nickname),
+        profile_picture.eq(&account_info.profile_picture),
+    ))
+    .returning(AccountsResp::as_returning())
+    .get_result(conn)
+    {
+        Ok(res) => Ok(res),
+        Err(e) => {
+            return Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("{:?}", e),
+            )))
+        }
+    }
+}
+
 pub fn add_memecoin(
     conn: &mut PgConnection,
     memecoin_info: Memecoins,

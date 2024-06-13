@@ -1,30 +1,15 @@
 #![feature(decl_macro)] // helps us with the routing of our application
-#[macro_use]
 extern crate rocket;
 
-use memez::add_account;
-use memez::add_memecoin;
-use memez::add_thread;
-use memez::add_trades;
-use memez::api_models::APIAccounts;
-use memez::api_models::APIMemecoins;
-use memez::api_models::APIThreads;
-use memez::api_models::APITrades;
-use memez::establish_connection;
-use memez::get_account_with_wallet_address;
-use memez::get_memecoin_threads;
-use memez::get_memecoin_with_address;
-use memez::get_memecoin_with_name;
-use memez::get_thread_with_id;
-use memez::get_trade_with_tx_hash;
-use memez::models::Accounts;
-use memez::models::AccountsResp;
-use memez::models::Memecoins;
-use memez::models::ThreadsResp;
-use memez::models::ToDBModel;
-use memez::models::Trades;
-use rocket::request::Form;
-use rocket::request::Request;
+use memez::{
+    add_account, add_memecoin, add_thread, add_trades,
+    api_models::{APIAccounts, APIEditAccounts, APIMemecoins, APIThreads, APITrades},
+    edit_account, establish_connection, get_account_with_wallet_address, get_memecoin_threads,
+    get_memecoin_with_address, get_memecoin_with_name, get_thread_with_id, get_trade_with_tx_hash,
+    models::{AccountsResp, Memecoins, ThreadsResp, ToDBModel, Trades},
+};
+
+use rocket::request::{Form, Request};
 use rocket::*;
 use rocket_contrib::json::Json;
 #[get("/acc-via-wallet/<wallet_address>")]
@@ -99,6 +84,15 @@ fn add_acc(new_acc_info: Form<APIAccounts>) -> Json<Result<AccountsResp, String>
     }
 }
 
+#[post("/edit-account", data = "<new_acc_info>")]
+fn edit_acc(new_acc_info: Form<APIEditAccounts>) -> Json<Result<AccountsResp, String>> {
+    let mut conn = establish_connection();
+    match edit_account(&mut conn, APIEditAccounts::to_db_model(new_acc_info.0)) {
+        Ok(res) => return Json(Ok(res)),
+        Err(e) => return Json(Err(format!("{:?}", e))),
+    }
+}
+
 #[post("/add-memecoin", data = "<new_memecoin_info>")]
 fn add_memcoin(new_memecoin_info: Form<APIMemecoins>) -> Json<Result<Memecoins, String>> {
     let mut conn = establish_connection();
@@ -143,8 +137,10 @@ fn main() {
                 trade_via_tx_hash,
                 tokens_trades,
                 add_acc,
+                edit_acc,
                 add_memcoin,
                 create_thread,
+                store_trade
             ],
         )
         .launch();

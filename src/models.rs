@@ -1,4 +1,4 @@
-use crate::api_models::{APIAccounts, APIMemecoins, APIThreads, APITrades};
+use crate::api_models::{APIAccounts, APIEditAccounts, APIMemecoins, APIThreads, APITrades};
 use crate::schema::{accounts, memecoins, threads, trades};
 use crate::{accounts::dsl::*, memecoins::dsl::*, threads::dsl::*, trades::dsl::*};
 use chrono::NaiveDateTime;
@@ -151,6 +151,17 @@ impl ToDBModel<APITrades, Trades> for APITrades {
             type_: model.type_,
             amount_eth: model.amount_eth,
             amount_token: model.amount_token,
+        }
+    }
+}
+
+impl ToDBModel<APIEditAccounts, AccountsResp> for APIEditAccounts {
+    fn to_db_model(model: APIEditAccounts) -> AccountsResp {
+        AccountsResp {
+            id: model.id,
+            wallet_address: model.wallet_address,
+            nickname: model.nickname,
+            profile_picture: model.profile_picture,
         }
     }
 }

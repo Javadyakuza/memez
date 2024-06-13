@@ -9,6 +9,14 @@ pub struct APIAccounts {
 }
 
 #[derive(FromForm, Debug, Serialize)]
+pub struct APIEditAccounts {
+    pub id: i32,
+    pub wallet_address: String,
+    pub nickname: Option<String>,
+    pub profile_picture: Option<String>,
+}
+
+#[derive(FromForm, Debug, Serialize)]
 pub struct APIMemecoins {
     pub contract_address: String,
     pub creator_id: i32,
